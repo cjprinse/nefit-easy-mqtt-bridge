@@ -6,7 +6,6 @@ const Promise = require("bluebird");
 
 const DELAY = process.env.POLL_DELAY || 300000;
 const PUBLISH_TO_SEPERATE_TOPICS = process.env.PUBLISH_TO_SEPERATE_TOPICS !== undefined ? process.env.PUBLISH_TO_SEPERATE_TOPICS : false;
-
 function checkOption(option, error){
     if(!option){
         console.error(error);
@@ -22,6 +21,8 @@ let params = {
     mqttUsername   : process.env.MQTT_USERNAME,
     mqttPassword   : process.env.MQTT_PASSWORD,
 };
+
+const TOPIC_PREFIX = (process.env.TOPIC_PREFIX || "/nefit/".concat(params.serialNumber)).replace(/\/+$/, '');
 
 checkOption(params.serialNumber, "NEFIT_SERIAL_NUMBER not set");
 checkOption(params.accessKey,    "NEFIT_ACCESS_KEY not set");
@@ -43,25 +44,49 @@ const nefitClient  = NefitEasyClient({
     password       : params.password
 });
 
+
+function normalizeStatus(status) {
+    let normalized = {};
+
+    for(let key in status) {
+        let value = status[key];
+
+        if (typeof value === 'boolean') {
+            value = value ? '1' : '0'
+        }
+
+        if (value === null) {
+            continue;
+        }
+
+        key = key.replace(/\W+/g, '_')
+        normalized[key] = value;
+    }
+
+    return normalized;
+}
+
 function publishStatus(nefitClient, mqtt, publishOnce = false){
     let promises = [nefitClient.status(),
                     nefitClient.pressure(),
-                    nefitClient.supplyTemperature(),];
+                    nefitClient.supplyTemperature(),
+                    ];
     return Promise.all(promises)
         .spread(async (status, pressure, supplyTemperature) => {
-            let topic = "/nefit/".concat(params.serialNumber);
+            status = normalizeStatus(status);
             if (PUBLISH_TO_SEPERATE_TOPICS) {
-                await mqtt.publish(topic+'/mode', status['user mode'].toString());
-                await mqtt.publish(topic+'/setpoint', status['temp setpoint'].toString());
-                await mqtt.publish(topic+'/inhouse', status['in house temp'].toString());
-                await mqtt.publish(topic+'/outdoor_temp', status['outdoor temp'].toString());
-                await mqtt.publish(topic+'/override_setpoint', status['temp override temp setpoint'].toString());
-                await mqtt.publish(topic+'/manual_setpoint',  status['temp manual setpoint'].toString());
-                await mqtt.publish(topic+'/hot_water_active', status['hot water active']? '1' :'0');
-                await mqtt.publish(topic+'/serial', params.serialNumber.toString());
-                await mqtt.publish(topic+'/pressure', pressure.pressure.toString());
-                await mqtt.publish(topic+'/supply_temperature', supplyTemperature.temperature.toString());
+                for(let key in status) {
+                    let value = status[key];
+                    await mqtt.publish(TOPIC_PREFIX+'/'+key, value.toString());
+                }
+                await mqtt.publish(TOPIC_PREFIX+'/serial', params.serialNumber.toString());
+                await mqtt.publish(TOPIC_PREFIX+'/pressure', pressure.pressure.toString());
+                await mqtt.publish(TOPIC_PREFIX+'/supply_temperature', supplyTemperature.temperature.toString());
             } else {
+                message = status;
+                message['serial'] = params.serialNumber;
+                message['pressure'] = pressure.pressure;
+                message['suppley_temperature'] = supplyTemperature.temperature;
                 let message = {
                     'mode' : status['user mode'],
                     'setpoint': status['temp setpoint'],
@@ -110,7 +135,7 @@ async function handleMessage(nefitClient, mqtt, topic, message){
 Promise.using(nefitClient.connect(), mqttClientP, 
     async (_, mqttClient) => {
         console.log("Connected...");
-        await mqttClient.subscribe("/nefit/".concat(params.serialNumber).concat("/command/+"))
+        await mqttClient.subscribe(TOPIC_PREFIX.concat("/command/+"))
         mqttClient.on('message', function(topic, message){
             handleMessage(nefitClient, mqttClient, topic, message);
         });
