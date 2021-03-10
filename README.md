@@ -39,15 +39,29 @@ The bridge posts a JSON message to the topic `/nefit/${serialnumber}` with follo
 example 
 ```
 {
-  "setpoint": 21.5,
-  "inhouse": 21.7,
-  "outdoorTemp": 7,
-  "overrideSetpoint": 21.5,
-  "manualSetpoint": 15,
-  "hotWaterActive": 1,
-  "serial": "1234567",
-  "pressure": 25.5,
-  "supplyTemperature": 47.3
+  user_mode: 'clock',
+  clock_program: 'auto',
+  in_house_status: 'ok',
+  in_house_temp: 21.3,
+  hot_water_active: '1',
+  boiler_indicator: 'off',
+  control: 'weather',
+  temp_override_duration: 0,
+  current_switchpoint: 18,
+  ps_active: '0',
+  powersave_mode: '0',
+  fp_active: '0',
+  fireplace_mode: '0',
+  temp_override: '0',
+  holiday_mode: '0',
+  temp_setpoint: 21,
+  temp_override_temp_setpoint: 21,
+  temp_manual_setpoint: 21,
+  outdoor_temp: 9,
+  outdoor_source_type: 'virtual',
+  serial: '123456789',
+  pressure: 1.5,
+  supply_temperature: 39.6
 }
 ```
 
