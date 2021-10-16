@@ -21,6 +21,8 @@ The app is configured using multiple environment variables:
     POLL_DELAY (in ms, defaults to 300000 -> 5 minutes)
     PUBLISH_TO_SEPERATE_TOPICS (boolean, defaults to false)
     TOPIC_PREFIX (defaults to /nefit/{serial})
+    AUTODISCOVER_PREFIX (defaults to homeassistant)
+    AUTODISCOVER_NAME (defaults to livingroom)
 
 # Topics
 

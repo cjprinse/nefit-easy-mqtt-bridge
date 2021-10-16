@@ -1,0 +1,16 @@
+apiVersion: v1
+appVersion: latest
+description: Nefit easy to mqtt bridge
+name: nefit-easy-mqtt-bridge
+version: 1.0.0
+keywords:
+  - nefit easy
+  - mqtt bridge
+home: https://github.com/cjprinse/nefit-easy-mqtt-bridge
+maintainers:
+  - name: c. prinse
+    email: prinse.c@gmail.com
+dependencies:
+  - name: common
+    repository: https://library-charts.k8s-at-home.com
+    version: 4.0.1

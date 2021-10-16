@@ -8,8 +8,10 @@
     "async-mqtt": "^1.0.1",
     "bluebird": "^3.5.1",
     "docopt": "^0.6.2",
+    "lodash": "^4.17.21",
     "mqtt": "^2.15.0",
-    "nefit-easy-commands": "^2.0.0"
+    "nefit-easy-commands": "^2.0.0",
+    "node-cleanup": "^2.1.2"
   },
   "devDependencies": {
     "dotenv": "^8.2.0"
