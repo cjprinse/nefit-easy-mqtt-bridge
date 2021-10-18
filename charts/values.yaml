@@ -12,9 +12,9 @@ image:
 
 env:
   TZ: UTC
-  NEFIT_SERIAL_NUMBER: ""
-  NEFIT_ACCESS_KEY: ""
-  NEFIT_PASSWORD: ""
+  NEFIT_SERIAL_NUMBER: "720924484"
+  NEFIT_ACCESS_KEY: "SLLKwHuBXHbJVrT9"
+  NEFIT_PASSWORD: "7Q4mXNc477"
   MQTT_URL: mqtt://mosquitto:1883
   MQTT_USERNAME: admin
   MQTT_PASSWORD: admin
@@ -40,4 +40,12 @@ persistence:
   source:
     enabled: false
   backups:
+    enabled: false
+
+probes:
+  liveness:
+    enabled: false
+  readiness:
+    enabled: false
+  startup:
     enabled: false

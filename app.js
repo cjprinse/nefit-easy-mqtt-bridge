@@ -32,6 +32,13 @@ checkOption(params.accessKey,    "NEFIT_ACCESS_KEY not set");
 checkOption(params.password,     "NEFIT_PASSWORD not set");
 checkOption(params.mqttUrl,      "MQTT_URL not set.");
 
+const AUTODISCOVER_DEVICE = {
+    identifiers: ["nefit_".concat(params.serialNumber.toString())],
+    manufacturer: "Nefit Bosch",
+    model: "Easy Connect mqtt",
+    name: AUTODISCOVER_NAME
+};
+
 const mqttClient = MQTT.connect(params.mqttUrl,
                      {"username": params.mqttUsername,
                       "password": params.mqttPassword});
@@ -153,25 +160,26 @@ Promise.using(nefitClient.connect(), mqttClientP,
             .catch(() =>  console.error("Failed to set mode to manual"));
 
         publishAutoDiscover(mqttClient, 'climate', "nefit_"+params.serialNumber.toString(), {
+            device: AUTODISCOVER_DEVICE,
             min_temp: 5,
             max_temp: 30,
-            modes: [],
+            modes: ['off', 'heat'],
             avty_t: TOPIC_PREFIX+"/available",
-            mode_command_topic: TOPIC_PREFIX+"/user_mode",
-            mode_state_topic: TOPIC_PREFIX+"/command/setmode",
+            mode_state_topic: TOPIC_PREFIX+"/mode",
+            mode_command_topic: TOPIC_PREFIX+"/mode",
             current_temperature_topic: TOPIC_PREFIX+"/in_house_temp",
             temperature_command_topic: TOPIC_PREFIX+"/command/settemperature",
             temp_step: 0.5,
-            mode_state_template: "{{ {0: 'manual', 1: 'clock'}[value_json] | default('manual') }}",
             temperature_state_topic: TOPIC_PREFIX+"/temp_setpoint",
-            temperature_unit: '°C',
+            temperature_unit: 'C',
             precision: 0.1,
-            unique_id: "nefit_"+params.serialNumber.toString(),
+            unique_id: "nefit_"+params.serialNumber.toString()+"_thermostat",
             name: AUTODISCOVER_NAME,
         });
 
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_outdoor_temp", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             device_class: 'temperature',
             unique_id: "nefit_"+params.serialNumber.toString()+"_outdoor_temp",
             name: AUTODISCOVER_NAME+"_outdoor_temp",
@@ -181,6 +189,7 @@ Promise.using(nefitClient.connect(), mqttClientP,
 
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_supply_temperature", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             device_class: 'temperature',
             unique_id: "nefit_"+params.serialNumber.toString()+"_supply_temp",
             name: AUTODISCOVER_NAME+"_supply_temp",
@@ -189,6 +198,7 @@ Promise.using(nefitClient.connect(), mqttClientP,
         });
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_temp_manual_setpoint", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             device_class: 'temperature',
             unique_id: "nefit_"+params.serialNumber.toString()+"_temp_manual_setpoint",
             name: AUTODISCOVER_NAME+"_temp_manual_setpoint",
@@ -197,6 +207,7 @@ Promise.using(nefitClient.connect(), mqttClientP,
         });
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_temp_override_temp_setpoint", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             device_class: 'temperature',
             unique_id: "nefit_"+params.serialNumber.toString()+"_temp_override_temp_setpoint",
             name: AUTODISCOVER_NAME+"_temp_override_temp_setpoint",
@@ -205,6 +216,7 @@ Promise.using(nefitClient.connect(), mqttClientP,
         });
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_current_switchpoint", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             device_class: 'temperature',
             unique_id: "nefit_"+params.serialNumber.toString()+"_current_switchpoint",
             name: AUTODISCOVER_NAME+"_current_switchpoint",
@@ -214,6 +226,7 @@ Promise.using(nefitClient.connect(), mqttClientP,
 
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_pressure", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             device_class: 'pressure',
             unique_id: "nefit_"+params.serialNumber.toString()+"_pressure",
             name: AUTODISCOVER_NAME+"_pressure",
@@ -222,6 +235,7 @@ Promise.using(nefitClient.connect(), mqttClientP,
         });
         publishAutoDiscover(mqttClient, 'binary_sensor', "nefit_"+params.serialNumber.toString()+"_hot_water_active", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             unique_id: "nefit_"+params.serialNumber.toString()+"_hot_water_active",
             name: AUTODISCOVER_NAME+"_hot_water_active",
             state_topic: TOPIC_PREFIX+"/hot_water_active",
@@ -230,6 +244,7 @@ Promise.using(nefitClient.connect(), mqttClientP,
         });
         publishAutoDiscover(mqttClient, 'binary_sensor', "nefit_"+params.serialNumber.toString()+"_boiler_indicator", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             unique_id: "nefit_"+params.serialNumber.toString()+"_boiler_indicator",
             name: AUTODISCOVER_NAME+"_boiler_indicator",
             state_topic: TOPIC_PREFIX+"/boiler_indicator",
@@ -238,24 +253,28 @@ Promise.using(nefitClient.connect(), mqttClientP,
         });
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_control", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             unique_id: "nefit_"+params.serialNumber.toString()+"_control",
             name: AUTODISCOVER_NAME+"_control",
             state_topic: TOPIC_PREFIX+"/control",
         });
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_user_mode", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             unique_id: "nefit_"+params.serialNumber.toString()+"_user_mode",
             name: AUTODISCOVER_NAME+"_user_mode",
             state_topic: TOPIC_PREFIX+"/user_mode",
         });
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_clock_program", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             unique_id: "nefit_"+params.serialNumber.toString()+"_clock_program",
             name: AUTODISCOVER_NAME+"_clock_program",
             state_topic: TOPIC_PREFIX+"/clock_program",
         });
         publishAutoDiscover(mqttClient, 'sensor', "nefit_"+params.serialNumber.toString()+"_outdoor_source_type", {
             avty_t: TOPIC_PREFIX+"/available",
+            device: AUTODISCOVER_DEVICE,
             unique_id: "nefit_"+params.serialNumber.toString()+"_outdoor_source_type",
             name: AUTODISCOVER_NAME+"_outdoor_source_type",
             state_topic: TOPIC_PREFIX+"/outdoor_source_type",
