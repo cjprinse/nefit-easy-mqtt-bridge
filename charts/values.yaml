@@ -7,7 +7,7 @@
 
 image:
   repository: cprinse/nefit-easy-mqtt-bridge
-  tag: latest
+  tag: "1.3"
   pullPolicy: IfNotPresent
 
 env:
@@ -22,6 +22,7 @@ env:
   TOPIC_PREFIX: nefit/living_room
   AUTODISCOVER_NAME: woonkamer
   POLL_DELAY: 30000
+  NODE_OPTIONS: "--unhandled-rejections=strict"
 
 
 service:
